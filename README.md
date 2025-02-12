@@ -146,6 +146,23 @@ graph TB
       ```
       docker-compose up --build
       ```
+   - Una vez que ha sido desplegado, podrás acceder a cada uno de los servicios y su documentación Swagger:
+
+   **Orders API**
+
+    - `localhost:3000/health` - Valida la operatividad del servicio.
+    - `localhost:3000/documentation` - Muestra documentación interactiva Swagger.
+
+   **Kitchen API**
+
+    - `localhost:3001/health` - Valida la operatividad del servicio.
+    - `localhost:3001/documentation` - Muestra documentación interactiva Swagger.
+
+   **Inventory API**
+
+    - `localhost:3002/health` - Valida la operatividad del servicio.
+    - `localhost:3002/documentation` - Muestra documentación interactiva Swagger.
+
 
 4. **Desplegar en AWS ECS**  
    El despliegue es automático a través de **GitHub Actions**. Cada push a `main` reconstruye y actualiza los servicios en **AWS ECS**.
