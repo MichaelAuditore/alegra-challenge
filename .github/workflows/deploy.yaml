@@ -48,14 +48,6 @@ jobs:
           }
           EOF
 
-      - name: Deploy orders-app to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: orders-task-def.json
-          cluster: ${{ env.CLUSTER_NAME }}
-          service: orders-service
-          wait-for-service-stability: true
-
       # 🚀 **Desplegar kitchen-app**
       - name: Generate ECS Task Definition for kitchen-app
         run: |
@@ -80,14 +72,6 @@ jobs:
           }
           EOF
 
-      - name: Deploy kitchen-app to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: kitchen-task-def.json
-          cluster: ${{ env.CLUSTER_NAME }}
-          service: kitchen-service
-          wait-for-service-stability: true
-
       # 🚀 **Desplegar inventory-app**
       - name: Generate ECS Task Definition for inventory-app
         run: |
@@ -111,11 +95,3 @@ jobs:
             ]
           }
           EOF
-
-      - name: Deploy inventory-app to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: inventory-task-def.json
-          cluster: ${{ env.CLUSTER_NAME }}
-          service: inventory-service
-          wait-for-service-stability: true
