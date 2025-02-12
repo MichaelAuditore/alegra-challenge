@@ -1,0 +1,121 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  CLUSTER_NAME: alegra-cluster
+
+jobs:
+  deploy:
+    name: Deploy Services
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 🚀 **Desplegar orders-app**
+      - name: Generate ECS Task Definition for orders-app
+        run: |
+          cat <<EOF > orders-task-def.json
+          {
+            "family": "orders-task",
+            "containerDefinitions": [
+              {
+                "name": "orders-app",
+                "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:orders-latest",
+                "memory": 512,
+                "cpu": 256,
+                "essential": true,
+                "portMappings": [
+                  {
+                    "containerPort": 3000,
+                    "hostPort": 3000
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+
+      - name: Deploy orders-app to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: orders-task-def.json
+          cluster: ${{ env.CLUSTER_NAME }}
+          service: orders-service
+          wait-for-service-stability: true
+
+      # 🚀 **Desplegar kitchen-app**
+      - name: Generate ECS Task Definition for kitchen-app
+        run: |
+          cat <<EOF > kitchen-task-def.json
+          {
+            "family": "kitchen-task",
+            "containerDefinitions": [
+              {
+                "name": "kitchen-app",
+                "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:kitchen-latest",
+                "memory": 512,
+                "cpu": 256,
+                "essential": true,
+                "portMappings": [
+                  {
+                    "containerPort": 3001,
+                    "hostPort": 3001
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+
+      - name: Deploy kitchen-app to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: kitchen-task-def.json
+          cluster: ${{ env.CLUSTER_NAME }}
+          service: kitchen-service
+          wait-for-service-stability: true
+
+      # 🚀 **Desplegar inventory-app**
+      - name: Generate ECS Task Definition for inventory-app
+        run: |
+          cat <<EOF > inventory-task-def.json
+          {
+            "family": "inventory-task",
+            "containerDefinitions": [
+              {
+                "name": "inventory-app",
+                "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:inventory-latest",
+                "memory": 512,
+                "cpu": 256,
+                "essential": true,
+                "portMappings": [
+                  {
+                    "containerPort": 3002,
+                    "hostPort": 3002
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+
+      - name: Deploy inventory-app to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: inventory-task-def.json
+          cluster: ${{ env.CLUSTER_NAME }}
+          service: inventory-service
+          wait-for-service-stability: true
