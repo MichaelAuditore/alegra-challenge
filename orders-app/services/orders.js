@@ -13,6 +13,17 @@ export async function updateOrderStatus(fastify, orderId, status) {
     // 🔹 Si el último estado es igual al que intentamos insertar, evitar duplicaciones
     if (rows.length > 0 && rows[0].progress_status === status) {
         fastify.log.warn(`⚠️ Order ${orderId} already in status "${status}". Skipping update.`);
+
+        let nextStatus = status === "unknown" ? "pending" :
+            status === "pending" ? "cooking" :
+                "ready";
+
+        // retry update
+        if (nextStatus !== "ready")
+            await fastify.redis.redisPub.publish("order_updates", JSON.stringify({
+                orderId,
+                status: nextStatus
+            }));
         return;
     }
 

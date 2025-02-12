@@ -33,7 +33,6 @@ export default fp(async function (fastify, opts) {
             if (status === "pending" && recipeId) {
                 await updateOrder(fastify, orderId, recipeId);
             }
-
             await updateOrderStatus(fastify, orderId, status);
         });
 

@@ -56,11 +56,6 @@ export default async function (fastify, opts) {
         const orderId = await createAndProcessOrder(fastify);
 
         if (orderId) {
-          const order = {
-            orderId,
-            timestamp: new Date().toISOString(),
-          };
-
           // 📢 Publicar en Redis para que cocina la tome
           await fastify.redis.redisPub.publish("order_updates", JSON.stringify({
             orderId,
