@@ -1,0 +1,77 @@
+import {
+  ordersByStatusSchema,
+  ordersGetSchema,
+  ordersPostSchema
+} from "../../schemas/orders.schema.js";
+import {
+  createAndProcessOrder,
+  getOrders,
+  getOrdersByStatus,
+  getTotalCountOrdersByStatus,
+  getTotalOrders
+} from "../../services/orders.js";
+
+export default async function (fastify, opts) {
+  fastify.get("/",
+    { schema: ordersGetSchema },
+    async function (request, reply) {
+      try {
+        const { limit = '5', offset = '1' } = request.query;
+        const orders = await getOrders(fastify, { limit, offset });
+        const totalOrders = await getTotalOrders(fastify);
+        return reply.code(200).send({ orders, total: totalOrders });
+      } catch (error) {
+        fastify.log.error(`🔥 Error fetching orders: ${error}`);
+        return reply.code(500).send({
+          error: "Failed to retrieve orders",
+          details: error.message
+        });
+      }
+    })
+
+  fastify.get("/:status",
+    { schema: ordersByStatusSchema },
+    async function (request, reply) {
+      try {
+        const status = request.params.status;
+        const { limit = '5', offset = '0' } = request.query;
+        const orders = await getOrdersByStatus(fastify, { status, limit, offset });
+        const totalOrders = await getTotalCountOrdersByStatus(fastify, status);
+        return reply.code(200).send({ orders, total: totalOrders });
+      } catch (error) {
+        fastify.log.error("🔥 Error fetching orders:", error);
+        return reply.code(500).send({
+          error: "Failed to retrieve orders",
+          details: error.message
+        });
+      }
+    })
+
+  fastify.post("/",
+    { schema: ordersPostSchema },
+    async function (request, reply) {
+      try {
+        const customer = request.body?.customer || "default-user";
+
+        const orderId = await createAndProcessOrder(fastify);
+
+        if (orderId) {
+          const order = {
+            orderId,
+            timestamp: new Date().toISOString(),
+          };
+
+          // 📌 Publicar la orden en la cola "ordersQueue"
+          await fastify.redis.rpush("ordersQueue", JSON.stringify(order));
+        }
+
+        return reply.code(201).send({
+          message: "Orden enviada a la cocina exitosamente.",
+          orderId,
+          customer
+        });
+      } catch (error) {
+        return reply.code(500).send({ error: "No se pudo procesar la orden" });
+      }
+    })
+}

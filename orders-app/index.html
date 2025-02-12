@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos en Tiempo Real</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        #orders { margin-top: 20px; }
+        .order { padding: 10px; border: 1px solid #ddd; margin: 5px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Estado de Pedidos en Tiempo Real</h1>
+    <div id="orders"></div>
+    
+    <script>
+        const socket = new WebSocket("ws://localhost:3000/orders/ws");
+
+        socket.onopen = () => {
+            console.log("Conectado al WebSocket");
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            actualizarUI(data);
+        };
+
+        socket.onerror = (error) => {
+            console.error("Error en WebSocket", error);
+        };
+
+        function actualizarUI(data) {
+            let orderElement = document.getElementById(`order-${data.orderId}`);
+            if (!orderElement) {
+                orderElement = document.createElement("div");
+                orderElement.id = `order-${data.orderId}`;
+                orderElement.classList.add("order");
+                document.getElementById("orders").appendChild(orderElement);
+            }
+            orderElement.textContent = `Pedido ${data.orderId}: ${data.status}`;
+        }
+    </script>
+</body>
+</html>
