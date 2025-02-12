@@ -60,3 +60,6 @@ profile*
 # env
 
 .env
+
+# mongo seeds
+mongodb

@@ -52,6 +52,75 @@ La infraestructura está gestionada dentro de un **monorepo**, con imágenes Doc
 ├── 📺 .github/workflows # GitHub Actions (CI/CD)
 ├── 📺 README.md        # Documentación del proyecto
 ```
+---
+
+## **Diagrama de Flujo**
+
+```mermaid
+graph TB
+    User((Restaurant Manager))
+
+    subgraph "Orders Service"
+        OrdersApp["Orders App<br>Fastify"]
+        
+        subgraph "Orders Components"
+            OrdersController["Orders Controller<br>Node.js"]
+            OrderProcessor["Order Processor<br>Node.js"]
+            OrdersDB[("Orders Database<br>PostgreSQL")]
+            OrdersRedis["Message Queue<br>Redis"]
+        end
+    end
+
+    subgraph "Kitchen Service"
+        KitchenApp["Kitchen App<br>Fastify"]
+        
+        subgraph "Kitchen Components"
+            RecipeManager["Recipe Manager<br>Node.js"]
+            QueueProcessor["Queue Processor<br>Node.js"]
+            KitchenDB[("Kitchen Database<br>PostgreSQL")]
+            KitchenRedis["Message Queue<br>Redis"]
+            OrderUpdater["Order Status Updater<br>Node.js"]
+        end
+    end
+
+    subgraph "Inventory Service"
+        InventoryApp["Inventory App<br>Fastify"]
+        
+        subgraph "Inventory Components"
+            InventoryManager["Inventory Manager<br>Node.js"]
+            PurchaseService["Purchase Service<br>Node.js"]
+            InventoryDB[("Inventory Database<br>MongoDB")]
+            WebsocketHandler["WebSocket Handler<br>Fastify WebSocket"]
+        end
+    end
+
+    %% User interactions
+    User -->|"Places order"| OrdersApp
+    
+    %% Orders Service flows
+    OrdersApp -->|"Routes requests"| OrdersController
+    OrdersController -->|"Stores orders"| OrdersDB
+    OrdersController -->|"Publishes orders"| OrdersRedis
+    OrderProcessor -->|"Processes orders"| OrdersRedis
+
+    %% Kitchen Service flows
+    KitchenRedis -->|"Consumes orders"| QueueProcessor
+    QueueProcessor -->|"Gets recipe"| RecipeManager
+    RecipeManager -->|"Stores/retrieves recipes"| KitchenDB
+    QueueProcessor -->|"Requests ingredients"| InventoryApp
+    OrderUpdater -->|"Updates order status"| OrdersApp
+
+    %% Inventory Service flows
+    InventoryManager -->|"Manages stock"| InventoryDB
+    InventoryManager -->|"Triggers purchases"| PurchaseService
+    WebsocketHandler -->|"Real-time updates"| User
+    PurchaseService -->|"Records purchases"| InventoryDB
+
+    %% Inter-service communication
+    OrdersApp -->|"Sends order"| KitchenApp
+    KitchenApp -->|"Requests ingredients"| InventoryApp
+    InventoryApp -->|"Confirms stock"| KitchenApp
+```
 
 ---
 
@@ -66,12 +135,22 @@ La infraestructura está gestionada dentro de un **monorepo**, con imágenes Doc
    - Copiar el archivo `.env.example` en cada microservicio y completar con valores.
 
 3. **Ejecutar localmente con Docker Compose**  
-   ```bash
-   docker-compose up --build
-   ```
+   - Configurar la variable de entorno `PURCHASE_URL` en docker-compose.yaml.
+
+   - Si tienes instalado el plugin de Docker Compose (versión v2 integrada en el CLI de Docker), ejecuta:
+      ```bash
+      docker compose up --build
+      ```
+
+   - Si usas la versión independiente (standalone), ejecuta:
+      ```
+      docker-compose up --build
+      ```
 
 4. **Desplegar en AWS ECS**  
    El despliegue es automático a través de **GitHub Actions**. Cada push a `main` reconstruye y actualiza los servicios en **AWS ECS**.
+
+   Se bloque la rama main para que el proceso de ejecución de actions se haga después de completar un Pull Request
 
 ---
 
