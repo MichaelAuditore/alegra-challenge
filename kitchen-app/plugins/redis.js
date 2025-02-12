@@ -17,7 +17,7 @@ export default fp(async function (fastify, opts) {
     });
 
     fastify.after(async () => {
-        await fastify.redis.redisSub.subscribe("order_updates", async (err, count) => {
+        await fastify.redis.redisSub.subscribe("new_order", async (err, count) => {
             if (err) {
                 fastify.log.error("❌ Error suscribing:", err);
                 return;
@@ -26,7 +26,7 @@ export default fp(async function (fastify, opts) {
         });
 
         fastify.redis.redisSub.on("message", async (channel, message) => {
-            if (channel !== "order_updates") return;
+            if (channel !== "new_order") return;
 
             const { orderId, status } = JSON.parse(message);
 

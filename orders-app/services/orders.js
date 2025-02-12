@@ -5,34 +5,46 @@ export async function updateOrder(fastify, orderId, recipeId) {
 }
 
 export async function updateOrderStatus(fastify, orderId, status) {
-    // 🔹 Verificar el último estado registrado
+    const validTransitions = {
+        unknown: "pending",
+        pending: "cooking",
+        cooking: "ready",
+        ready: null, // No hay transición después de "ready"
+    };
+
+    // 🔹 Verificar el último estado registrado en la BD
     const checkQuery = `SELECT progress_status FROM orders_processing 
                         WHERE order_id = $1 ORDER BY last_updated DESC LIMIT 1`;
     const { rows } = await fastify.pg.query(checkQuery, [orderId]);
 
-    // 🔹 Si el último estado es igual al que intentamos insertar, evitar duplicaciones
-    if (rows.length > 0 && rows[0].progress_status === status) {
+    const lastStatus = rows.length > 0 ? rows[0].progress_status : "unknown";
+
+    // 🔹 Si el estado es el mismo que el último registrado, evitamos duplicación
+    if (lastStatus === status) {
         fastify.log.warn(`⚠️ Order ${orderId} already in status "${status}". Skipping update.`);
-
-        let nextStatus = status === "unknown" ? "pending" :
-            status === "pending" ? "cooking" :
-                "ready";
-
-        // retry update
-        if (nextStatus !== "ready")
-            await fastify.redis.redisPub.publish("order_updates", JSON.stringify({
-                orderId,
-                status: nextStatus
-            }));
         return;
     }
 
-    // 🔹 Insertar el nuevo estado solo si es válido
+    // 🔹 Validar si el estado entrante es el correcto en la secuencia
+    if (validTransitions[lastStatus] !== status) {
+        fastify.log.warn(`🚨 Order ${orderId} received status "${status}" out of order! Expected: "${validTransitions[lastStatus]}"`);
+
+        // Reenviar el estado esperado a la cola
+        if (validTransitions[lastStatus]) {
+            await fastify.redis.redisPub.publish("order_updates", JSON.stringify({
+                orderId,
+                status: validTransitions[lastStatus]
+            }));
+            fastify.log.info(`🔄 Resending expected status "${validTransitions[lastStatus]}" for order ${orderId}`);
+        }
+        return;
+    }
+
+    // 🔹 Insertar el nuevo estado solo si es correcto en la secuencia
     const query = `INSERT INTO orders_processing (order_id, progress_status) VALUES ($1, $2) RETURNING id`;
     await fastify.pg.query(query, [orderId, status]);
     fastify.log.info(`✅ Order ${orderId} updated to status: ${status}`);
 }
-
 
 export async function createAndProcessOrder(fastify) {
     const client = await fastify.pg.connect();

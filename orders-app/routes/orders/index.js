@@ -57,7 +57,7 @@ export default async function (fastify, opts) {
 
         if (orderId) {
           // 📢 Publicar en Redis para que cocina la tome
-          await fastify.redis.redisPub.publish("order_updates", JSON.stringify({
+          await fastify.redis.redisPub.publish("new_order", JSON.stringify({
             orderId,
             status: "unknown"
           }));
