@@ -19,7 +19,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mydb
     ports:
-      - "5432:5432"
+      - "5433:5432" # Se mapea el puerto interno 5433 al 5432 en el host para evitar conflictos
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U user -d mydb" ]
       interval: 10s
@@ -32,7 +32,7 @@ services:
     container_name: mongo
     restart: always
     ports:
-      - "27017:27017"
+      - "27018:27017" # Se mapea el puerto interno 27017 al 27018 en el host para evitar conflictos
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
