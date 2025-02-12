@@ -1,29 +1,66 @@
+export async function updateOrder(fastify, orderId, recipeId) {
+    const query = `UPDATE orders SET recipe_id = $1 WHERE id = $2 RETURNING id`;
+    await fastify.pg.query(query, [recipeId, orderId]);
+    fastify.log.info(`🔄 Order updated: ${orderId} (Recipe ${recipeId})`);
+}
+
+export async function updateOrderStatus(fastify, orderId, status) {
+    // 🔹 Verificar el último estado registrado
+    const checkQuery = `SELECT progress_status FROM orders_processing 
+                        WHERE order_id = $1 ORDER BY last_updated DESC LIMIT 1`;
+    const { rows } = await fastify.pg.query(checkQuery, [orderId]);
+
+    // 🔹 Si el último estado es igual al que intentamos insertar, evitar duplicaciones
+    if (rows.length > 0 && rows[0].progress_status === status) {
+        fastify.log.warn(`⚠️ Order ${orderId} already in status "${status}". Skipping update.`);
+        return;
+    }
+
+    // 🔹 Insertar el nuevo estado solo si es válido
+    const query = `INSERT INTO orders_processing (order_id, progress_status) VALUES ($1, $2) RETURNING id`;
+    await fastify.pg.query(query, [orderId, status]);
+    fastify.log.info(`✅ Order ${orderId} updated to status: ${status}`);
+}
+
+
 export async function createAndProcessOrder(fastify) {
-    const unknownRecipeId = "d7aeb3ed-38b8-49b2-be0e-a5c8fc105bb9";
     const client = await fastify.pg.connect();
 
     try {
         await client.query("BEGIN");
 
-        // 1️⃣ Insertar la orden en `orders`
-        const orderQuery = `INSERT INTO orders (recipe_id) VALUES ($1) RETURNING id`;
-        const { rows } = await client.query(orderQuery, [unknownRecipeId]);
-        const orderId = rows[0].id;
+        // 1️⃣ Get the "unknown" recipe ID
+        const recipeQuery = `SELECT id FROM recipes WHERE key_name = 'unknown' LIMIT 1`;
+        const recipeResult = await client.query(recipeQuery);
 
+        // 🛑 If no recipe found, rollback & throw an error
+        if (recipeResult.rows.length === 0) {
+            throw new Error("Recipe with key_name 'unknown' not found.");
+        }
+
+        const recipeId = recipeResult.rows[0].id;
+        fastify.log.info(`📌 Using Recipe ID: ${recipeId}`);
+
+        // 2️⃣ Insert order into `orders`
+        const orderQuery = `INSERT INTO orders (recipe_id) VALUES ($1) RETURNING id`;
+        const { rows } = await client.query(orderQuery, [recipeId]);
+
+        const orderId = rows[0].id;
         fastify.log.info(`✅ Order created with ID: ${orderId}`);
 
-        // 2️⃣ Insertar la orden en `orders_processing` con estado "unknown"
+        // 3️⃣ Insert order into `orders_processing`
         const processQuery = `INSERT INTO orders_processing (order_id, progress_status) VALUES ($1, $2) RETURNING id`;
         await client.query(processQuery, [orderId, "unknown"]);
 
+        // 4️⃣ Commit transaction
         await client.query("COMMIT");
 
         return orderId;
 
     } catch (error) {
-        // ❌ Revertir en caso de error
+        // ❌ Rollback if any error occurs
         await client.query("ROLLBACK");
-        fastify.log.error(`Error al crear orden: ${error}`);
+        fastify.log.error(`🔥 Error creating order: ${error.message}`);
         throw error;
     } finally {
         client.release();

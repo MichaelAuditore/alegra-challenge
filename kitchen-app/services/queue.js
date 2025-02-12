@@ -1,31 +1,28 @@
 import { requestIngredients } from "./inventory.js";
-import { updateOrders } from "./order.js";
+import { scheduleOrderUpdates } from "./order.js";
 import { getRandomRecipe } from "./recipe.js";
 
-export async function processOrders(fastify) {
-    fastify.log.info("👨‍🍳 Kitchen Consumer started, waiting for orders...");
+export async function processOrders(fastify, orderId) {
+    fastify.log.info(`🍳 Order ${orderId} received, selecting recipe...`);
 
-    while (true) {
-        try {
-            const orderData = await fastify.redis.lpop("ordersQueue");
+    // 1️⃣ Escoger receta aleatoria
+    const randomRecipe = await getRandomRecipe(fastify);
+    const recipeId = randomRecipe.id;
 
-            if (orderData) {
-                const order = JSON.parse(orderData);
-                fastify.log.info(`🍳 Preparing order: ${order.orderId} for ${order.customer}`);
-
-                const randomRecipe = await getRandomRecipe(fastify);
-                fastify.log.info(`Recipe to cook: ${randomRecipe.key_name}`);
-
-                const answer = await requestIngredients(fastify, randomRecipe);
-
-                if (answer.status)
-                    await updateOrders(fastify, order.orderId, randomRecipe.id);
-            } else {
-                // No orders? Wait a bit before retrying
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-            }
-        } catch (error) {
-            fastify.log.error(`❌ Error processing order: ${error}`);
-        }
+    if (!recipeId) {
+        fastify.log.error(`🚨 No recipes available for Order ${orderId}`);
+        return;
     }
+
+    const answer = await requestIngredients(fastify, randomRecipe);
+    if (answer.status) {
+        // 📢 Publicar actualización en Redis con la receta asignada
+        await fastify.redis.publish("order_updates", JSON.stringify({
+            orderId,
+            status: "pending",
+            recipeId
+        }));
+    }
+
+    await scheduleOrderUpdates(fastify, orderId);
 }

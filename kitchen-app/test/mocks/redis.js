@@ -1,19 +1,44 @@
-export default {
-    storage: {},
+export const redisMock = {
+    redisPub: {
+        storage: {},
 
-    async rpush(queueName, message) {
-        if (!this.storage[queueName]) {
-            this.storage[queueName] = [];
+        async publish(channel, message) {
+            if (!this.storage[channel]) {
+                this.storage[channel] = [];
+            }
+            this.storage[channel].push(message);
         }
-        this.storage[queueName].push(message);
     },
 
-    async lpop(queueName) {
-        return this.storage[queueName]?.shift() || null;
+    redisSub: {
+        storage: {},
+        listeners: {},
+
+        async subscribe(channel) {
+            if (!this.storage[channel]) {
+                this.storage[channel] = [];
+            }
+            if (!this.listeners[channel]) {
+                this.listeners[channel] = [];
+            }
+        },
+
+        on(event, callback) {
+            if (event !== "message") return;
+            this.listeners[event] = callback;
+        },
+
+        emit(channel, message) {
+            if (this.listeners["message"]) {
+                this.listeners["message"](channel, message);
+            }
+        }
     },
 
     async quit() {
-        this.storage = {};
+        this.pub.storage = {};
+        this.sub.storage = {};
+        this.sub.listeners = {};
         return Promise.resolve();
     }
 };

@@ -4,7 +4,7 @@ import assert from "node:assert";
 import { test } from "node:test";
 
 import { envSchema } from "../../schemas/env.schema.js";
-import redis from "../mocks/redis.js";
+import { redisMock } from "../mocks/redis.js";
 
 test("Redis plugin registers correctly", async (t) => {
     const fastify = Fastify();
@@ -19,7 +19,7 @@ test("Redis plugin registers correctly", async (t) => {
     }
 
     await fastify.register(fastifyEnv, envOptions);
-    fastify.redis = redis;
+    fastify.redis = redisMock;
 
     await fastify.ready();
 

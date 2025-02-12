@@ -61,8 +61,11 @@ export default async function (fastify, opts) {
             timestamp: new Date().toISOString(),
           };
 
-          // 📌 Publicar la orden en la cola "ordersQueue"
-          await fastify.redis.rpush("ordersQueue", JSON.stringify(order));
+          // 📢 Publicar en Redis para que cocina la tome
+          await fastify.redis.redisPub.publish("order_updates", JSON.stringify({
+            orderId,
+            status: "unknown"
+          }));
         }
 
         return reply.code(201).send({
@@ -71,7 +74,8 @@ export default async function (fastify, opts) {
           customer
         });
       } catch (error) {
-        return reply.code(500).send({ error: "No se pudo procesar la orden" });
+        console.log(error);
+        return reply.code(500).send({ error: "It doesn't process the order" });
       }
     })
 }

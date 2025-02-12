@@ -1,7 +1,7 @@
 import { build as buildApplication } from "fastify-cli/helper.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import redisMock from "./mocks/redis.js";
+import { redisMock } from "./mocks/redis.js";
 
 // This file contains code that we reuse
 // between our tests.

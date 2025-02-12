@@ -1,9 +1,11 @@
 import assert from "node:assert";
 import test from "node:test";
 import { build } from "../helper.js";
+import { redisMock } from "../mocks/redis.js";
 
 test("POST /orders - Creates an order successfully", async (t) => {
     const app = await build(t);
+    app.redis = redisMock;
 
     const response = await app.inject({
         method: "POST",
@@ -20,6 +22,7 @@ test("POST /orders - Creates an order successfully", async (t) => {
 
 test("POST /orders - Uses default customer when is empty", async (t) => {
     const app = await build(t);
+    app.redis = redisMock;
 
     const response = await app.inject({
         method: "POST",
@@ -36,6 +39,7 @@ test("POST /orders - Uses default customer when is empty", async (t) => {
 
 test("POST /orders - Returns 400 when customer is missing", async (t) => {
     const app = await build(t);
+    app.redis = redisMock;
 
     const response = await app.inject({
         method: "POST",
@@ -48,9 +52,10 @@ test("POST /orders - Returns 400 when customer is missing", async (t) => {
 
 test("POST /orders - Returns 500 if Redis fails", async (t) => {
     const app = await build(t);
+    app.redis = redisMock;
 
     // ❌ Simulate Redis failure
-    app.redis.rpush = async () => {
+    app.redis.redisPub.publish = async () => {
         throw new Error("Redis connection failed");
     };
 
@@ -65,6 +70,7 @@ test("POST /orders - Returns 500 if Redis fails", async (t) => {
 
 test("GET / - Obtener lista de órdenes", async (t) => {
     const app = await build(t);
+    app.redis = redisMock;
 
     const response = await app.inject({
         method: "GET",
@@ -81,6 +87,7 @@ test("GET / - Obtener lista de órdenes", async (t) => {
 
 test("GET /:status - Obtener órdenes por estado", async (t) => {
     const app = await build(t);
+    app.redis = redisMock;
 
     const response = await app.inject({
         method: "GET",
@@ -97,6 +104,7 @@ test("GET /:status - Obtener órdenes por estado", async (t) => {
 
 test("GET /:status - Estado no válido", async (t) => {
     const app = await build(t);
+    app.redis = redisMock;
 
     const response = await app.inject({
         method: "GET",

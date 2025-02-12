@@ -58,68 +58,93 @@ La infraestructura está gestionada dentro de un **monorepo**, con imágenes Doc
 
 ```mermaid
 graph TB
-    User((Restaurant Manager))
+    User((Customer))
+    ExternalMarket["External Market API<br>Farmers Market"]
 
-    subgraph "Orders Service"
-        OrdersApp["Orders App<br>Fastify"]
-        
-        subgraph "Orders Components"
-            OrdersController["Orders Controller<br>Node.js"]
-            OrderProcessor["Order Processor<br>Node.js"]
-            OrdersDB[("Orders Database<br>PostgreSQL")]
-            OrdersRedis["Message Queue<br>Redis"]
+    subgraph "Restaurant System"
+        subgraph "Orders Service"
+            OrdersApp["Orders App<br>Fastify"]
+            
+            subgraph "Orders Components"
+                OrdersRoutes["Routes Handler<br>Fastify Routes"]
+                OrdersService["Orders Service<br>Node.js"]
+                OrdersSchema["Orders Schema<br>JSON Schema"]
+                PostgresPlugin["Postgres Plugin<br>@fastify/postgres"]
+                RedisPlugin["Redis Plugin<br>@fastify/redis"]
+            end
         end
-    end
 
-    subgraph "Kitchen Service"
-        KitchenApp["Kitchen App<br>Fastify"]
-        
-        subgraph "Kitchen Components"
-            RecipeManager["Recipe Manager<br>Node.js"]
-            QueueProcessor["Queue Processor<br>Node.js"]
-            KitchenDB[("Kitchen Database<br>PostgreSQL")]
-            KitchenRedis["Message Queue<br>Redis"]
-            OrderUpdater["Order Status Updater<br>Node.js"]
+        subgraph "Kitchen Service"
+            KitchenApp["Kitchen App<br>Fastify"]
+            
+            subgraph "Kitchen Components"
+                KitchenRoutes["Routes Handler<br>Fastify Routes"]
+                RecipeService["Recipe Service<br>Node.js"]
+                QueueService["Queue Service<br>Node.js"]
+                KitchenSchema["Recipe Schema<br>JSON Schema"]
+                KitchenPostgres["Postgres Plugin<br>@fastify/postgres"]
+                KitchenRedis["Redis Plugin<br>@fastify/redis"]
+            end
         end
-    end
 
-    subgraph "Inventory Service"
-        InventoryApp["Inventory App<br>Fastify"]
-        
-        subgraph "Inventory Components"
-            InventoryManager["Inventory Manager<br>Node.js"]
-            PurchaseService["Purchase Service<br>Node.js"]
-            InventoryDB[("Inventory Database<br>MongoDB")]
-            WebsocketHandler["WebSocket Handler<br>Fastify WebSocket"]
+        subgraph "Inventory Service"
+            InventoryApp["Inventory App<br>Fastify"]
+            
+            subgraph "Inventory Components"
+                InventoryRoutes["Routes Handler<br>Fastify Routes"]
+                InventoryService["Inventory Service<br>Node.js"]
+                InventorySchema["Inventory Schema<br>JSON Schema"]
+                MongoPlugin["MongoDB Plugin<br>@fastify/mongodb"]
+                WebsocketPlugin["Websocket Plugin<br>@fastify/websocket"]
+            end
+        end
+
+        subgraph "Data Stores"
+            PostgresDB[("PostgreSQL<br>Orders & Recipes")]
+            MongoDB[("MongoDB<br>Inventory")]
+            Redis[("Redis<br>Message Broker")]
         end
     end
 
     %% User interactions
-    User -->|"Places order"| OrdersApp
+    User -->|Places order| OrdersApp
     
-    %% Orders Service flows
-    OrdersApp -->|"Routes requests"| OrdersController
-    OrdersController -->|"Stores orders"| OrdersDB
-    OrdersController -->|"Publishes orders"| OrdersRedis
-    OrderProcessor -->|"Processes orders"| OrdersRedis
+    %% Service interactions
+    OrdersApp -->|Publishes updates| Redis
+    KitchenApp -->|Subscribes to updates| Redis
+    InventoryApp -->|Purchases ingredients| ExternalMarket
+    
+    %% Component interactions within Orders Service
+    OrdersApp -->|Uses| OrdersRoutes
+    OrdersRoutes -->|Uses| OrdersService
+    OrdersService -->|Validates| OrdersSchema
+    OrdersService -->|Stores data| PostgresDB
+    OrdersApp -->|Connects via| PostgresPlugin
+    OrdersApp -->|Messaging via| RedisPlugin
 
-    %% Kitchen Service flows
-    KitchenRedis -->|"Consumes orders"| QueueProcessor
-    QueueProcessor -->|"Gets recipe"| RecipeManager
-    RecipeManager -->|"Stores/retrieves recipes"| KitchenDB
-    QueueProcessor -->|"Requests ingredients"| InventoryApp
-    OrderUpdater -->|"Updates order status"| OrdersApp
+    %% Component interactions within Kitchen Service
+    KitchenApp -->|Uses| KitchenRoutes
+    KitchenRoutes -->|Uses| RecipeService
+    KitchenRoutes -->|Uses| QueueService
+    RecipeService -->|Validates| KitchenSchema
+    QueueService -->|Processes orders| RecipeService
+    KitchenApp -->|Connects via| KitchenPostgres
+    KitchenApp -->|Messaging via| KitchenRedis
+    
+    %% Component interactions within Inventory Service
+    InventoryApp -->|Uses| InventoryRoutes
+    InventoryRoutes -->|Uses| InventoryService
+    InventoryService -->|Validates| InventorySchema
+    InventoryService -->|Stores data| MongoDB
+    InventoryApp -->|Connects via| MongoPlugin
+    InventoryApp -->|Real-time updates via| WebsocketPlugin
 
-    %% Inventory Service flows
-    InventoryManager -->|"Manages stock"| InventoryDB
-    InventoryManager -->|"Triggers purchases"| PurchaseService
-    WebsocketHandler -->|"Real-time updates"| User
-    PurchaseService -->|"Records purchases"| InventoryDB
-
-    %% Inter-service communication
-    OrdersApp -->|"Sends order"| KitchenApp
-    KitchenApp -->|"Requests ingredients"| InventoryApp
-    InventoryApp -->|"Confirms stock"| KitchenApp
+    %% Database connections
+    PostgresPlugin -->|Connects to| PostgresDB
+    KitchenPostgres -->|Connects to| PostgresDB
+    MongoPlugin -->|Connects to| MongoDB
+    RedisPlugin -->|Connects to| Redis
+    KitchenRedis -->|Connects to| Redis
 ```
 
 ---
@@ -271,7 +296,7 @@ A continuación, se describe la estructura de la base de datos basada en los scr
 
 ## **📊 Estado del Despliegue**
 🔗 **URL de la aplicación:** [🔗 Enlace aquí]  
-🔗 **Repositorio en GitHub:** [🔗 Enlace aquí]  
+🔗 **Repositorio en GitHub:** [🔗 [Enlace aquí](https://github.com/MichaelAuditore/alegra-challenge)]  
 
 ---
 
