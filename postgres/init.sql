@@ -42,6 +42,50 @@ CREATE TABLE IF NOT EXISTS orders_processing (
   CONSTRAINT order_processing_order_id_fkey FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
 );
 
+-- Create Function
+
+-- 💾 Create function get_last_updated_orders
+CREATE OR REPLACE FUNCTION get_last_updated_orders(progress_status_param order_status)
+RETURNS TABLE (
+    order_id UUID,
+    progress_status order_status,
+    last_updated TIMESTAMP,
+    recipe_id UUID,
+    recipe_name VARCHAR,
+    recipe_description TEXT,
+    recipe_image TEXT,
+    recipe_ingredients JSONB
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH ranked_orders AS (
+        SELECT 
+            op.order_id,
+            op.progress_status,
+            op.last_updated,
+            ROW_NUMBER() OVER (PARTITION BY op.order_id ORDER BY op.last_updated DESC) AS rank
+        FROM orders_processing op
+        WHERE op.progress_status = progress_status_param
+    )
+    SELECT 
+        ro.order_id, 
+        ro.progress_status, 
+        ro.last_updated, 
+        r.*
+    FROM ranked_orders ro
+    JOIN orders o ON o.id = ro.order_id
+    JOIN recipes r ON r.id = o.recipe_id
+    WHERE ro.rank = 1
+    AND NOT EXISTS (
+        SELECT 1
+        FROM orders_processing o2
+        WHERE o2.order_id = ro.order_id
+            AND o2.progress_status <> ro.progress_status
+            AND o2.last_updated > ro.last_updated
+    );
+END;
+$$ LANGUAGE plpgsql;
+
 -- Insertar datos en recipes
 INSERT INTO recipes (key_name, description, image_url, ingredients) VALUES
 ('rice_with_chicken', 'rice_with_chicken_description', '/rice_with_chicken.webp', '{"rice": 2, "onion": 1, "chicken": 1}'::jsonb),

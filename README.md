@@ -163,8 +163,106 @@ graph TB
     - `localhost:3002/health` - Valida la operatividad del servicio.
     - `localhost:3002/documentation` - Muestra documentación interactiva Swagger.
 
+---
 
-4. **Desplegar en AWS ECS**  
+5. **📖 Database Setup**
+Este proyecto utiliza **PostgreSQL** y **MongoDB**.  
+A continuación, se describe la estructura de la base de datos basada en los scripts de inicialización.
+
+    ### **📌 PostgreSQL Structure**
+    📂 `postgres/init.sql`  
+    Este script crea las tablas y relaciones necesarias en PostgreSQL.
+
+    #### **📜 Tables & Schema**
+    ```sql
+    -- Orders Table
+    CREATE TABLE orders (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        recipe_id UUID REFERENCES recipes(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT now()
+    );
+
+    -- Orders Processing Table
+    CREATE TABLE orders_processing (
+        id SERIAL PRIMARY KEY,
+        order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+        progress_status TEXT NOT NULL CHECK (progress_status IN ('pending', 'cooking', 'ready', 'unknown')),
+        last_updated TIMESTAMP DEFAULT now()
+    );
+
+    -- Recipes Table
+    CREATE TABLE recipes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        key_name TEXT UNIQUE NOT NULL,
+        description TEXT,
+        image_url TEXT
+    );
+    ```
+
+    #### **🔹 How to Run PostgreSQL Init Script**
+    ```sh
+    docker exec -i postgres psql -U user -d mydb < postgres/init.sql
+    ```
+
+    ---
+
+    ### **📌 MongoDB Structure**
+    📂 `mongo/init-mongo.js`  
+    Este script inicializa la base de datos de MongoDB con la colección `ingredients`.
+
+    #### **📜 Collections**
+    ```js
+    db.createCollection("ingredients");
+    db.createCollection("purchases");
+
+    // Seed Data
+    db.ingredients.insertMany([
+    { key_name: "rice", stock: 100, unit: "kg" },
+    { key_name: "meat", stock: 50, unit: "kg" },
+    { key_name: "vegetables", stock: 30, unit: "kg" },
+    { key_name: "spices", stock: 20, unit: "g" },
+    { key_name: "cheese", stock: 15, unit: "kg" }
+    ]);
+    ```
+
+    #### **🔹 How to Run MongoDB Init Script**
+    ```sh
+    docker-compose down -v  # Remove old data
+    docker-compose up -d    # Start MongoDB with seeding
+    ```
+    To verify:
+    ```sh
+    docker exec -it mongo mongosh
+    use restaurant
+    db.ingredients.find().pretty()
+    ```
+
+    ---
+
+    ### **🛠️ How to Access the Databases**
+    #### **🔹 PostgreSQL**
+    ```sh
+    docker exec -it postgres-db psql -U user -d mydb
+    ```
+    #### **🔹 MongoDB**
+    ```sh
+    docker exec -it mongo mongosh
+    ```
+
+    ---
+
+    ### **✅ Summary**
+    | Database  | Type        | Collections / Tables |
+    |-----------|------------|----------------------|
+    | PostgreSQL | Relational | `orders`, `orders_processing`, `recipes` |
+    | MongoDB   | NoSQL       | `ingredients`, `purchases` |
+
+    ---
+    🚀 Para mas información visita los ficheros: [init.sql](./postgres/init.sql) [init-mongo.js](./mongo/init-mongo.js)
+
+---
+
+5. **Desplegar en AWS ECS**  
    El despliegue es automático a través de **GitHub Actions**. Cada push a `main` reconstruye y actualiza los servicios en **AWS ECS**.
 
    Se bloque la rama main para que el proceso de ejecución de actions se haga después de completar un Pull Request
