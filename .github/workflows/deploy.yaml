@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
-  CLUSTER_NAME: alegra-cluster
+  CLUSTER_NAME: challenge-alegra-cluster
 
 jobs:
   deploy:
