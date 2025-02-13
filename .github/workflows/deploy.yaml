@@ -34,7 +34,6 @@ jobs:
       - name: Deploy kitchen-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: kitchen-task-def.json
           cluster: ${{ env.CLUSTER_NAME }}
           service: kitchen-service
           wait-for-service-stability: true
