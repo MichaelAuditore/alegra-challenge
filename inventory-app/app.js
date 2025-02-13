@@ -36,6 +36,8 @@ export default async function (fastify, opts) {
 
   fastify.register(AutoLoad, {
     dir: path.join(__dirname, "routes"),
-    options: Object.assign({}, opts)
+    options: Object.assign({
+      prefix: "inventory-service"
+    }, opts),
   })
 }
