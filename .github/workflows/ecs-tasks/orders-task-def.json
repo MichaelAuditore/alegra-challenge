@@ -1,5 +1,6 @@
 {
     "family": "orders-task",
+    "executionRoleArn": "arn:aws:ssm:us-east-2:753829278316:parameter/alegra/*",
     "containerDefinitions": [
         {
             "name": "orders-app",
