@@ -295,10 +295,27 @@ A continuación, se describe la estructura de la base de datos basada en los scr
 ---
 
 ## **📊 Estado del Despliegue**
-🔗 **URL de la aplicación:** [🔗 Enlace aquí]  
+🔗 **URL de la aplicación:** [🔗 [Enlace aquí](my-app-loadbalancer-923472619.us-east-2.elb.amazonaws.com)]  
 🔗 **Repositorio en GitHub:** [🔗 [Enlace aquí](https://github.com/MichaelAuditore/alegra-challenge)]  
 
+
+## **Funcionamiento aplicación**
+los service-name disponibles para la app publicada en la URL anteriormente mencionada son:
+
+- orders-service
+- kitchen-service
+- inventory-service
+
+Nota: /`service-name`/swagger -> muestra la documentación de la API.
+
 ---
+
+## *Operación de Actualización Ordenes*
+
+* Estado inicial `unknown` mientras se define la receta.
+* Estado posterior `pending` cuando hay ingredientes disponibles y se ha seleccionado la receta.
+* Estado posterior `cooking`, la orden cambia de estado a los 30seg despues de estar en estado `pending`.
+* Estado posterior `ready`, la orden cambia el estado a los 60seg después de haber estado en estado `cooking`
 
 ## **📌 Autor**
 **Miguel Ángel Parada Cañón**  
