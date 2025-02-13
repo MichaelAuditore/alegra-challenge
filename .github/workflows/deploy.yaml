@@ -29,6 +29,7 @@ jobs:
         with:
           cluster: ${{ env.CLUSTER_NAME }}
           service: orders-service
+          task-definition: .github/workflows/ecs-tasks/orders-task-def.json
           wait-for-service-stability: true
 
       - name: Deploy kitchen-app to ECS
@@ -36,36 +37,13 @@ jobs:
         with:
           cluster: ${{ env.CLUSTER_NAME }}
           service: kitchen-service
+          task-definition: .github/workflows/ecs-tasks/kitchen-task-def.json
           wait-for-service-stability: true
-
-      # 🚀 **Desplegar inventory-app**
-      - name: Generate ECS Task Definition for inventory-app
-        run: |
-          cat <<EOF > inventory-task-def.json
-          {
-            "family": "inventory-task",
-            "containerDefinitions": [
-              {
-                "name": "inventory-app",
-                "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:inventory-latest",
-                "memory": 512,
-                "cpu": 256,
-                "essential": true,
-                "portMappings": [
-                  {
-                    "containerPort": 3002,
-                    "hostPort": 3002
-                  }
-                ]
-              }
-            ]
-          }
-          EOF
 
       - name: Deploy inventory-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: inventory-task-def.json
           cluster: ${{ env.CLUSTER_NAME }}
           service: inventory-service
+          task-definition: .github/workflows/ecs-tasks/inventory-task-def.json
           wait-for-service-stability: true
