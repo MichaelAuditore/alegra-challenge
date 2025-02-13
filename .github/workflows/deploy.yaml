@@ -7,10 +7,11 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   CLUSTER_NAME: challenge-alegra-cluster
-  IMAGE_TAG_ORDERS: ${{ env.IMAGE_TAG_ORDERS }}
-  IMAGE_TAG_INVENTORY: ${{ env.IMAGE_TAG_INVENTORY }}
-  IMAGE_TAG_KITCHEN: ${{ env.IMAGE_TAG_KITCHEN }}
+  IMAGE_TAG_ORDERS: ${{ secrets.IMAGE_TAG_ORDERS }}
+  IMAGE_TAG_INVENTORY: ${{ secrets.IMAGE_TAG_INVENTORY }}
+  IMAGE_TAG_KITCHEN: ${{ secrets.IMAGE_TAG_KITCHEN }}
 
 jobs:
   deploy:
@@ -27,24 +28,39 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Replace Image URL in Task Definition
-        run: |
-          sed -i 's|<IMAGE_PLACEHOLDER>|${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/alegra-challenge:${IMAGE_TAG_ORDERS}|g' .github/workflows/ecs-tasks/orders-task-def.json
-      
-      - name: Replace Image URL in Task Definition
-        run: |
-          sed -i 's|<IMAGE_PLACEHOLDER>|${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/alegra-challenge:${IMAGE_TAG_KITCHEN}|g' .github/workflows/ecs-tasks/kitchen-task-def.json
+      # 🔹 Renderizar task definition con la imagen correcta para orders
+      - name: Render Orders Task Definition
+        id: render_orders
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: .github/workflows/ecs-tasks/orders-task-def.json
+          container-name: orders-container
+          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_ORDERS }}
 
-      - name: Replace Image URL in Task Definition
-        run: |
-          sed -i 's|<IMAGE_PLACEHOLDER>|${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/alegra-challenge:${IMAGE_TAG_INVENTORY}|g' .github/workflows/ecs-tasks/inventory-task-def.json
+      # 🔹 Renderizar task definition con la imagen correcta para kitchen
+      - name: Render Kitchen Task Definition
+        id: render_kitchen
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: .github/workflows/ecs-tasks/kitchen-task-def.json
+          container-name: kitchen-container
+          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_KITCHEN }}
+
+      # 🔹 Renderizar task definition con la imagen correcta para inventory
+      - name: Render Inventory Task Definition
+        id: render_inventory
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: .github/workflows/ecs-tasks/inventory-task-def.json
+          container-name: inventory-container
+          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_INVENTORY }}
 
       - name: Deploy orders-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           cluster: ${{ env.CLUSTER_NAME }}
           service: orders-service
-          task-definition: .github/workflows/ecs-tasks/orders-task-def.json
+          task-definition: ${{ steps.render_orders.outputs.task-definition }}
           wait-for-service-stability: true
 
       - name: Deploy kitchen-app to ECS
@@ -52,7 +68,7 @@ jobs:
         with:
           cluster: ${{ env.CLUSTER_NAME }}
           service: kitchen-service
-          task-definition: .github/workflows/ecs-tasks/kitchen-task-def.json
+          task-definition: ${{ steps.render_kitchen.outputs.task-definition }}
           wait-for-service-stability: true
 
       - name: Deploy inventory-app to ECS
@@ -60,5 +76,5 @@ jobs:
         with:
           cluster: ${{ env.CLUSTER_NAME }}
           service: inventory-service
-          task-definition: .github/workflows/ecs-tasks/inventory-task-def.json
+          task-definition: ${{ steps.render_inventory.outputs.task-definition }}
           wait-for-service-stability: true
