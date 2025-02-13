@@ -13,7 +13,7 @@ export default fp(async function (fastify, opts) {
     });
 
     fastify.register(fastifySwaggerUi, {
-        routePrefix: "/documentation",
+        routePrefix: "/inventory-service/documentation",
         exposeRoute: true
     });
 });
