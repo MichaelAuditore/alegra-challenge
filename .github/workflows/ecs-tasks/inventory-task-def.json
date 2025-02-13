@@ -5,7 +5,7 @@
         {
             "name": "inventory-app",
             "image": "<IMAGE_PLACEHOLDER>",
-            "environment": [
+            "secrets": [
                 {
                     "name": "MONGO_URI",
                     "valueFrom": "/alegra/MONGO_URI"
