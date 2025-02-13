@@ -27,7 +27,6 @@ jobs:
       - name: Deploy orders-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: orders-task-def.json
           cluster: ${{ env.CLUSTER_NAME }}
           service: orders-service
           wait-for-service-stability: true
