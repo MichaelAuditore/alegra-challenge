@@ -34,7 +34,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: .github/workflows/ecs-tasks/orders-task-def.json
-          container-name: orders-container
+          container-name: orders-app
           image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_ORDERS }}
 
       # 🔹 Renderizar task definition con la imagen correcta para kitchen
@@ -43,7 +43,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: .github/workflows/ecs-tasks/kitchen-task-def.json
-          container-name: kitchen-container
+          container-name: kitchen-app
           image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_KITCHEN }}
 
       # 🔹 Renderizar task definition con la imagen correcta para inventory
@@ -52,7 +52,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: .github/workflows/ecs-tasks/inventory-task-def.json
-          container-name: inventory-container
+          container-name: inventory-app
           image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_INVENTORY }}
 
       - name: Deploy orders-app to ECS
