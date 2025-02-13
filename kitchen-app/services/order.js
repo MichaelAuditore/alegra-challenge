@@ -19,7 +19,7 @@ export async function scheduleOrderUpdates(fastify, orderId, attempt = 1) {
                 }).catch(error => {
                     fastify.log.error(`❌ Failed to update Order ${orderId} to "ready": ${error.message}`);
                 });
-            }, 30000);
+            }, 60000);
 
         }).catch(error => {
             fastify.log.error(`❌ Failed to update Order ${orderId} to "cooking": ${error.message}`);
