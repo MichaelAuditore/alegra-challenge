@@ -1,11 +1,10 @@
 {
     "family": "inventory-task",
-    "executionRoleArn": "ecsInstanceRole",
     "containerDefinitions": [
         {
             "name": "inventory-app",
             "image": "<IMAGE_PLACEHOLDER>",
-            "secrets": [
+            "environment": [
                 {
                     "name": "MONGO_URI",
                     "valueFrom": "/alegra/MONGO_URI"

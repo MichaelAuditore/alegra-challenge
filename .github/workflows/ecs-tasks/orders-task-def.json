@@ -1,6 +1,5 @@
 {
     "family": "orders-task",
-    "executionRoleArn": "ecsInstanceRole",
     "containerDefinitions": [
         {
             "name": "orders-app",
