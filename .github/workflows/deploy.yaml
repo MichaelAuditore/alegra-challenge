@@ -9,9 +9,9 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   CLUSTER_NAME: challenge-alegra-cluster
-  IMAGE_TAG_ORDERS: ${{ secrets.IMAGE_TAG_ORDERS }}
-  IMAGE_TAG_INVENTORY: ${{ secrets.IMAGE_TAG_INVENTORY }}
-  IMAGE_TAG_KITCHEN: ${{ secrets.IMAGE_TAG_KITCHEN }}
+  IMAGE_TAG_ORDERS: ${{ env.IMAGE_TAG_ORDERS }}
+  IMAGE_TAG_INVENTORY: ${{ env.IMAGE_TAG_INVENTORY }}
+  IMAGE_TAG_KITCHEN: ${{ env.IMAGE_TAG_KITCHEN }}
 
 jobs:
   deploy:
