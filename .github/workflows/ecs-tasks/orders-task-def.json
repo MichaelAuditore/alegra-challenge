@@ -3,7 +3,7 @@
     "containerDefinitions": [
       {
         "name": "orders-app",
-        "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/alegra-challenge:orders-latest",
+        "image": "<IMAGE_PLACEHOLDER>",
         "memory": 512,
         "cpu": 256,
         "essential": true,

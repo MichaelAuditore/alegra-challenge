@@ -8,6 +8,9 @@ on:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   CLUSTER_NAME: challenge-alegra-cluster
+  IMAGE_TAG_ORDERS: ${{ env.IMAGE_TAG_ORDERS }}
+  IMAGE_TAG_INVENTORY: ${{ env.IMAGE_TAG_INVENTORY }}
+  IMAGE_TAG_KITCHEN: ${{ env.IMAGE_TAG_KITCHEN }}
 
 jobs:
   deploy:
@@ -23,6 +26,18 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Replace Image URL in Task Definition
+        run: |
+          sed -i 's|<IMAGE_PLACEHOLDER>|${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/alegra-challenge:${IMAGE_TAG_ORDERS}|g' .github/workflows/ecs-tasks/orders-task-def.json
+      
+      - name: Replace Image URL in Task Definition
+        run: |
+          sed -i 's|<IMAGE_PLACEHOLDER>|${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/alegra-challenge:${IMAGE_TAG_KITCHEN}|g' .github/workflows/ecs-tasks/kitchen-task-def.json
+
+      - name: Replace Image URL in Task Definition
+        run: |
+          sed -i 's|<IMAGE_PLACEHOLDER>|${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/alegra-challenge:${IMAGE_TAG_INVENTORY}|g' .github/workflows/ecs-tasks/inventory-task-def.json
 
       - name: Deploy orders-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
