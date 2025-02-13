@@ -1,7 +1,7 @@
 import { healthSchema } from "../schemas/health.schema.js";
 
 export default async function (fastify, opts) {
-  fastify.get("/", { schema: healthSchema }, async function (request, reply) {
+  fastify.get("/health", { schema: healthSchema }, async function (request, reply) {
     return reply.code(200).send({
       status: "OK",
       uptime: process.uptime(),
