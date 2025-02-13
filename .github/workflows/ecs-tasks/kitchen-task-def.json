@@ -1,19 +1,32 @@
 {
     "family": "kitchen-task",
     "containerDefinitions": [
-      {
-        "name": "kitchen-app",
-        "image": "<IMAGE_PLACEHOLDER>",
-        "memory": 512,
-        "cpu": 256,
-        "essential": true,
-        "portMappings": [
-          {
-            "containerPort": 3001,
-            "hostPort": 3001
-          }
-        ]
-      }
+        {
+            "name": "kitchen-app",
+            "image": "<IMAGE_PLACEHOLDER>",
+            "secrets": [
+                {
+                    "name": "REDIS_URL",
+                    "valueFrom": "/alegra/REDIS_URL"
+                },
+                {
+                    "name": "WS_INVENTORY",
+                    "valueFrom": "/alegra/WS_INVENTORY"
+                },
+                {
+                    "name": "PGSQL_DATABASE_URL",
+                    "valueFrom": "/alegra/PGSQL_DATABASE_URL"
+                }
+            ],
+            "memory": 512,
+            "cpu": 256,
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 3001,
+                    "hostPort": 3001
+                }
+            ]
+        }
     ]
-  }
-  
+}
