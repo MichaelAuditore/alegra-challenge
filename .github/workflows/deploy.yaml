@@ -49,6 +49,12 @@ jobs:
           docker build -t $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_INVENTORY }} ./inventory-app
           docker push $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_INVENTORY }}
 
+      - name: Replace AWS Logs Region in Task Definitions
+        run: |
+          sed -i 's|"awslogs-region": "TO_BE_REPLACED"|"awslogs-region": "'${{ env.AWS_REGION }}'"|' .github/workflows/ecs-tasks/orders-task-def.json
+          sed -i 's|"awslogs-region": "TO_BE_REPLACED"|"awslogs-region": "'${{ env.AWS_REGION }}'"|' .github/workflows/ecs-tasks/inventory-task-def.json
+          sed -i 's|"awslogs-region": "TO_BE_REPLACED"|"awslogs-region": "'${{ env.AWS_REGION }}'"|' .github/workflows/ecs-tasks/kitchen-task-def.json
+
       # 🔹 Renderizar task definitions
       - name: Render Orders Task Definition
         id: render_orders

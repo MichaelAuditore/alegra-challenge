@@ -28,7 +28,7 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-group": "orders-app",
-                    "awslogs-region": "us-east-2",
+                    "awslogs-region": "TO_BE_REPLACED",
                     "awslogs-stream-prefix": "ecs"
                 }
             }

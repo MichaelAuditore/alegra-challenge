@@ -34,7 +34,7 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-group": "kitchen-app",
-                    "awslogs-region": "us-east-2",
+                    "awslogs-region": "TO_BE_REPLACED",
                     "awslogs-stream-prefix": "ecs"
                 }
             }
