@@ -27,7 +27,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/orders-app",
+                    "awslogs-group": "orders-app",
                     "awslogs-region": "us-east-2",
                     "awslogs-stream-prefix": "ecs"
                 }

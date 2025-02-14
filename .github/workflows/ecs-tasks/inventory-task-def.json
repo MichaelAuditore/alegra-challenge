@@ -29,7 +29,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/inventory-app",
+                    "awslogs-group": "inventory-app",
                     "awslogs-region": "us-east-2",
                     "awslogs-stream-prefix": "ecs"
                 }
