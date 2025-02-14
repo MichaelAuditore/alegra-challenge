@@ -14,7 +14,7 @@ export async function processOrders(fastify, orderId) {
         return;
     }
 
-    const answer = await requestIngredients(fastify, randomRecipe);
+    const answer = await requestIngredients(fastify, "wss", randomRecipe);
     if (answer.status) {
         // 📢 Publicar actualización en Redis con la receta asignada
         await fastify.redis.redisPub.publish("order_updates", JSON.stringify({

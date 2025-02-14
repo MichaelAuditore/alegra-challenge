@@ -17,7 +17,7 @@ mockWSS.on("connection", (ws) => {
 
 async function buildFastify() {
     const fastify = Fastify();
-    fastify.config = { WS_INVENTORY: "ws://localhost:8081" };
+    fastify.config = { WS_INVENTORY: "localhost:8081" };
     return fastify;
 }
 
@@ -26,7 +26,7 @@ test("requestIngredients - Success Request", async (t) => {
     const fastify = await buildFastify();
     const ingredients = { potato: 3, ketchup: 1 };
 
-    const response = await requestIngredients(fastify, { ingredients });
+    const response = await requestIngredients(fastify, "ws", { ingredients });
 
     assert.strictEqual(response.success, true, "Response should indicate success");
     assert.deepStrictEqual(response.message, "Solicitud procesada");
@@ -41,7 +41,7 @@ test("requestIngredients - WebSocket connection failure", async (t) => {
     const ingredients = { potato: 3, ketchup: 1 };
 
     try {
-        await requestIngredients(fastify, { ingredients });
+        await requestIngredients(fastify, "ws", { ingredients });
         assert.fail("Should have thrown an error");
     } catch (error) {
         assert.ok(error, "Error should be thrown");
