@@ -1,44 +1,26 @@
-export const redisMock = {
+export const mockRedis = {
     redisPub: {
-        storage: {},
-
-        async publish(channel, message) {
-            if (!this.storage[channel]) {
-                this.storage[channel] = [];
-            }
-            this.storage[channel].push(message);
+        publish: async (channel, message) => {
+            console.log(`📢 Mock Publish: ${channel} -> ${message}`);
         }
     },
-
     redisSub: {
-        storage: {},
-        listeners: {},
-
-        async subscribe(channel) {
-            if (!this.storage[channel]) {
-                this.storage[channel] = [];
-            }
-            if (!this.listeners[channel]) {
-                this.listeners[channel] = [];
+        subscribe: async (channel, callback) => {
+            console.log(`📡 Mock Subscribed to ${channel}`);
+            if (channel === "order_updates") {
+                setTimeout(() => {
+                    callback(null, 1);
+                }, 10);
             }
         },
-
-        on(event, callback) {
-            if (event !== "message") return;
-            this.listeners[event] = callback;
-        },
-
-        emit(channel, message) {
-            if (this.listeners["message"]) {
-                this.listeners["message"](channel, message);
+        on: (event, handler) => {
+            console.log(`🛑 Mock listening for event: ${event}`);
+            if (event === "message") {
+                setTimeout(() => {
+                    const mockMessage = JSON.stringify({ orderId: "123", status: "pending", recipeId: "456" });
+                    handler("order_updates", mockMessage);
+                }, 100);
             }
         }
-    },
-
-    async quit() {
-        this.pub.storage = {};
-        this.sub.storage = {};
-        this.sub.listeners = {};
-        return Promise.resolve();
     }
 };

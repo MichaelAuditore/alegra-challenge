@@ -1,12 +1,12 @@
 import assert from "node:assert";
 import test from "node:test";
-import { build } from "../helper.js";
+import { createApp } from "../helper.js";
 
 test("GET / - health default route", async (t) => {
-  const app = await build(t)
+  const app = await createApp();
 
   const response = await app.inject({
-    url: "orders-service/v1/health"
+    url: "/orders-service/v1/health"
   })
 
   assert.strictEqual(response.statusCode, 200, "El código de respuesta debe ser 200");
@@ -17,6 +17,6 @@ test("GET / - health default route", async (t) => {
   assert.ok(typeof json.timestamp === "string", "Timestamp debe ser un string");
   assert.strictEqual(typeof json.redisRegistered, "boolean", "redisRegistered debe ser booleano");
   assert.strictEqual(typeof json.postgresRegistered, "boolean", "postgresRegistered debe ser booleano");
-});
 
-test.after(() => setImmediate(() => process.exit(0)));
+  app.close();
+});

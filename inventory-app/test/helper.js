@@ -19,7 +19,7 @@ export function config() {
 }
 
 // automatically build and tear down our instance
-export async function build(t) {
+export async function createApp(); {
   // you can set all the options supported by the fastify CLI command
   const argv = [AppPath]
 

@@ -1,34 +1,36 @@
-import { build as buildApplication } from "fastify-cli/helper.js";
-import path from "node:path";
+import fastifyAutoload from "@fastify/autoload";
+import Fastify from "fastify";
 import { fileURLToPath } from "node:url";
-import { redisMock } from "./mocks/redis.js";
+import path from "node:path";
 
-// This file contains code that we reuse
-// between our tests.
+import mockPostgres from "./mocks/postgres.js";
+import { mockRedis } from "./mocks/redis.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const AppPath = path.join(__dirname, "..", "app.js");
 
-// Fill in this config with all the configurations
-// needed for testing the application
-export function config() {
-  return {
-    redisUrl: "mockRedis://127.0.0.1:6379",
-    skipOverride: true // Register our application with fastify-plugin
+export async function createApp() {
+  const app = Fastify();
+  app.decorate('config', { REDIS_URL: "mock://default", PGSQL_DATABASE_URL: "mock://pg.database:3000" });
+  app.decorate('redis', mockRedis);
+  app.decorate('pg', mockPostgres());
+
+  // Asegurar que los mocks tengan la estructura correcta
+  if (!app.redis.redisPub || !app.redis.redisSub) {
+    throw new Error("❌ mockRedis no tiene las propiedades necesarias.");
   }
-}
+  if (!app.pg.query) {
+    throw new Error("❌ mockPostgres no tiene la función query.");
+  }
 
-// automatically build and tear down our instance
-export async function build(t) {
-  // you can set all the options supported by the fastify CLI command
-  const argv = [AppPath]
+  app.register(fastifyAutoload, {
+    dir: path.resolve(__dirname, "../routes"),
+    options: Object.assign({
+      prefix: "orders-service/v1"
+    }),
+  });
 
-  // fastify-plugin ensures that all decorators
-  // are exposed for testing purposes, this is
-  // different from the production setup
-  const app = await buildApplication(argv, config());
-  app.redis = redisMock;
+  await app.ready();
 
   return app;
 }

@@ -18,7 +18,9 @@ export default async function (fastify, opts) {
       try {
         const { limit = '5', offset = '0' } = request.query;
         const orders = await getOrders(fastify, { limit, offset });
+
         fastify.log.info(`Orders: ${JSON.stringify(orders)}`);
+
         const totalOrders = await getTotalOrders(fastify);
         return reply.code(200).send({ orders, total: totalOrders });
       } catch (error) {
@@ -40,7 +42,8 @@ export default async function (fastify, opts) {
         const totalOrders = await getTotalCountOrdersByStatus(fastify, status);
         return reply.code(200).send({ orders, total: totalOrders });
       } catch (error) {
-        fastify.log.error("🔥 Error fetching orders:", error);
+        console.error(error);
+        fastify.log.error(`🔥 Error fetching orders: ${error}`);
         return reply.code(500).send({
           error: "Failed to retrieve orders",
           details: error.message
@@ -70,6 +73,7 @@ export default async function (fastify, opts) {
           customer
         });
       } catch (error) {
+        console.error(error);
         return reply.code(500).send({ error: "It doesn't process the order" });
       }
     })

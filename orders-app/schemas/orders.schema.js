@@ -59,6 +59,16 @@ export const ordersGetSchema = {
 export const ordersByStatusSchema = {
     tags: ["Orders"],
     description: "obtiene ordenes con su respectivo estado",
+    params: {
+        type: 'object',
+        properties: {
+            status: {
+                type: 'string',
+                enum: ['pending', 'cooking', 'ready'] // Validación de los tres posibles valores
+            }
+        },
+        required: ['status']
+    },
     querystring: {
         type: "object",
         properties: {
