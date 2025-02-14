@@ -10,8 +10,6 @@ export default async function (fastify, opts) {
             try {
                 const { limit = '5', offset = '0' } = request.query;
                 const { purchases, total } = await getPurchases(collection, { limit, offset });
-                console.log(purchases);
-                console.log(total);
                 return { purchases, total };
             } catch (error) {
                 fastify.log.error(error);

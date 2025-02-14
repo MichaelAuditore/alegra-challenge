@@ -70,7 +70,6 @@ export default async function (fastify, opts) {
           customer
         });
       } catch (error) {
-        console.log(error);
         return reply.code(500).send({ error: "It doesn't process the order" });
       }
     })

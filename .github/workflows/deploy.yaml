@@ -22,6 +22,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up Node.js and pnpm
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests for orders-app
+        run: pnpm --filter orders-app test
+
+      - name: Run tests for kitchen-app
+        run: pnpm --filter kitchen-app test
+
+      - name: Run tests for inventory-app
+        run: pnpm --filter inventory-app test
+
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

@@ -6,7 +6,7 @@ test("GET / - health default route", async (t) => {
   const app = await build(t)
 
   const response = await app.inject({
-    url: "/health"
+    url: "orders-service/v1/health"
   })
 
   assert.strictEqual(response.statusCode, 200, "El código de respuesta debe ser 200");

@@ -26,9 +26,13 @@ export default fp(async function (fastify, opts) {
         });
 
         fastify.redis.redisSub.on("message", async (channel, message) => {
+            console.log('channel: ', channel);
             if (channel !== "new_order") return;
 
             const { orderId, status } = JSON.parse(message);
+
+            console.log('Status Order: ', status);
+            console.log('Id Order: ', orderId);
 
             if (status === "unknown") processOrders(fastify, orderId)
         });
