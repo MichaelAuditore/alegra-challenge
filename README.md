@@ -295,7 +295,7 @@ A continuación, se describe la estructura de la base de datos basada en los scr
 ---
 
 ## **📊 Estado del Despliegue**
-🔗 **URL de la aplicación:** [🔗 [Enlace aquí](my-app-loadbalancer-923472619.us-east-2.elb.amazonaws.com)]  
+🔗 **URL de la aplicación:** [🔗 [Enlace aquí](https://alegra.mp-test-challenges.com)]  
 🔗 **Repositorio en GitHub:** [🔗 [Enlace aquí](https://github.com/MichaelAuditore/alegra-challenge)]  
 
 

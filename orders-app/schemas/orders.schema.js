@@ -64,7 +64,7 @@ export const ordersByStatusSchema = {
         properties: {
             status: {
                 type: 'string',
-                enum: ['pending', 'cooking', 'ready'] // Validación de los tres posibles valores
+                enum: ['pending', 'cooking', 'ready', 'unknown']
             }
         },
         required: ['status']
