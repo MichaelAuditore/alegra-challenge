@@ -3,7 +3,11 @@ import websocket from "ws";
 export async function requestIngredients(fastify, protocol, { ingredients }) {
 
     return new Promise((resolve, reject) => {
-        const ws = new websocket(`${protocol}://${fastify.config.WS_INVENTORY}/v1/kitchen/recipe-ingredients`);
+        const URL_INVENTORY = `${protocol}://${fastify.config.WS_INVENTORY}/v1/kitchen/recipe-ingredients`;
+
+        fastify.log.info(`URL INVENTORY: ${URL_INVENTORY}`);
+
+        const ws = new websocket(URL_INVENTORY);
 
         ws.on("open", () => {
             fastify.log.info("✅ WebSocket connected to Inventory");
