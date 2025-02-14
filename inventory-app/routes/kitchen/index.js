@@ -7,8 +7,6 @@ export default async function (fastify, opts) {
             try {
                 await handleKitchenRequest(fastify, message);
 
-                console.log("Message Received in Socket");
-
                 socket.send(JSON.stringify({ message: "Solicitud procesada", status: true }));
             } catch (error) {
                 fastify.log.error(`Error al procesar la solicitud de productos: ${error}`);
