@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -15,8 +18,8 @@ env:
   REPOSITORY_NAME: alegra-challenge
 
 jobs:
-  deploy:
-    name: Deploy Services
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -47,6 +50,14 @@ jobs:
       - name: Run tests for inventory-app
         run: pnpm --filter inventory-app test
 
+  deploy:
+    name: Deploy Services
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -63,15 +74,12 @@ jobs:
         env:
           ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
         run: |
-          # Build and push orders-app
           docker build -t $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_ORDERS }} ./orders-app
           docker push $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_ORDERS }}
 
-          # Build and push kitchen-app
           docker build -t $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_KITCHEN }} ./kitchen-app
           docker push $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_KITCHEN }}
 
-          # Build and push inventory-app
           docker build -t $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_INVENTORY }} ./inventory-app
           docker push $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_INVENTORY }}
 
@@ -81,7 +89,6 @@ jobs:
           sed -i 's|"awslogs-region": "TO_BE_REPLACED"|"awslogs-region": "'${{ env.AWS_REGION }}'"|' .github/workflows/ecs-tasks/inventory-task-def.json
           sed -i 's|"awslogs-region": "TO_BE_REPLACED"|"awslogs-region": "'${{ env.AWS_REGION }}'"|' .github/workflows/ecs-tasks/kitchen-task-def.json
 
-      # 🔹 Renderizar task definitions
       - name: Render Orders Task Definition
         id: render_orders
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -106,7 +113,6 @@ jobs:
           container-name: inventory-app
           image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ env.IMAGE_TAG_INVENTORY }}
 
-      # 🔹 Desplegar los servicios en ECS
       - name: Deploy orders-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
