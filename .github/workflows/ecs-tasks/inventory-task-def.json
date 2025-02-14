@@ -25,7 +25,15 @@
                     "containerPort": 3002,
                     "hostPort": 3002
                 }
-            ]
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/inventory-app",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
         }
     ]
 }

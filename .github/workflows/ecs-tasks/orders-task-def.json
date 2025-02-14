@@ -23,7 +23,15 @@
                     "containerPort": 3000,
                     "hostPort": 3000
                 }
-            ]
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/orders-app",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
         }
     ]
 }

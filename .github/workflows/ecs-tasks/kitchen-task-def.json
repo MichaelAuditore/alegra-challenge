@@ -29,7 +29,15 @@
                     "containerPort": 3001,
                     "hostPort": 3001
                 }
-            ]
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/kitchen-app",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
         }
     ]
 }
