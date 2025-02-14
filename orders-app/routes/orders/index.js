@@ -16,8 +16,9 @@ export default async function (fastify, opts) {
     { schema: ordersGetSchema },
     async function (request, reply) {
       try {
-        const { limit = '5', offset = '1' } = request.query;
+        const { limit = '5', offset = '0' } = request.query;
         const orders = await getOrders(fastify, { limit, offset });
+        fastify.log.info(`Orders: ${JSON.stringify(orders)}`);
         const totalOrders = await getTotalOrders(fastify);
         return reply.code(200).send({ orders, total: totalOrders });
       } catch (error) {

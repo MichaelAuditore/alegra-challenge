@@ -12,6 +12,7 @@ env:
   IMAGE_TAG_ORDERS: ${{ vars.IMAGE_TAG_ORDERS }}
   IMAGE_TAG_INVENTORY: ${{ vars.IMAGE_TAG_INVENTORY }}
   IMAGE_TAG_KITCHEN: ${{ vars.IMAGE_TAG_KITCHEN }}
+  REPOSITORY_NAME: alegra-challenge
 
 jobs:
   deploy:
@@ -28,33 +29,52 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 🔹 Renderizar task definition con la imagen correcta para orders
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and Push Docker images
+        env:
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+        run: |
+          # Build and push orders-app
+          docker build -t $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_ORDERS }} ./orders-app
+          docker push $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_ORDERS }}
+
+          # Build and push kitchen-app
+          docker build -t $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_KITCHEN }} ./kitchen-app
+          docker push $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_KITCHEN }}
+
+          # Build and push inventory-app
+          docker build -t $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_INVENTORY }} ./inventory-app
+          docker push $ECR_REGISTRY/$REPOSITORY_NAME:${{ env.IMAGE_TAG_INVENTORY }}
+
+      # 🔹 Renderizar task definitions
       - name: Render Orders Task Definition
         id: render_orders
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: .github/workflows/ecs-tasks/orders-task-def.json
           container-name: orders-app
-          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_ORDERS }}
+          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ env.IMAGE_TAG_ORDERS }}
 
-      # 🔹 Renderizar task definition con la imagen correcta para kitchen
       - name: Render Kitchen Task Definition
         id: render_kitchen
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: .github/workflows/ecs-tasks/kitchen-task-def.json
           container-name: kitchen-app
-          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_KITCHEN }}
+          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ env.IMAGE_TAG_KITCHEN }}
 
-      # 🔹 Renderizar task definition con la imagen correcta para inventory
       - name: Render Inventory Task Definition
         id: render_inventory
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: .github/workflows/ecs-tasks/inventory-task-def.json
           container-name: inventory-app
-          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/alegra-challenge:${{ env.IMAGE_TAG_INVENTORY }}
+          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPOSITORY_NAME }}:${{ env.IMAGE_TAG_INVENTORY }}
 
+      # 🔹 Desplegar los servicios en ECS
       - name: Deploy orders-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:

@@ -8,6 +8,5 @@ export default fp(async function (fastify, opts) {
 
     fastify.after(() => {
         fastify.log.info("✅ PostgreSQL connected")
-        fastify.log.info(JSON.stringify(fastify.pg.Client.database))
     });
 });
