@@ -13,12 +13,10 @@
                 {
                     "name": "PGSQL_DATABASE_URL",
                     "valueFrom": "/alegra/PGSQL_DATABASE_URL"
-                }
-            ],
-            "environment": [
+                },
                 {
                     "name": "WS_INVENTORY",
-                    "value": "/alegra/WS_INVENTORY"
+                    "valueFrom": "/alegra/WS_INVENTORY"
                 }
             ],
             "memory": 512,

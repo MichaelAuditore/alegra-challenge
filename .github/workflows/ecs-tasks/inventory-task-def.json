@@ -9,12 +9,10 @@
                 {
                     "name": "MONGO_URI",
                     "valueFrom": "/alegra/MONGO_URI"
-                }
-            ],
-            "environment": [
+                },
                 {
                     "name": "PURCHASE_URL",
-                    "value": "/alegra/PURCHASE_URL"
+                    "valueFrom": "/alegra/PURCHASE_URL"
                 }
             ],
             "memory": 512,
