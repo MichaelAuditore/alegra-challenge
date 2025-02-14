@@ -295,7 +295,8 @@ A continuación, se describe la estructura de la base de datos basada en los scr
 ---
 
 ## **📊 Estado del Despliegue**
-🔗 **URL de la aplicación:** [🔗 [Enlace aquí](https://alegra.mp-test-challenges.com)]  
+🔗 **URL de la API:** [🔗 [Enlace aquí](https://alegra.mp-test-challenges.com)]
+🔗 **URL del sitio web:** [🔗 [Enlace aquí](https://alegra-frontend-beryl.vercel.app/restaurant)]
 🔗 **Repositorio en GitHub:** [🔗 [Enlace aquí](https://github.com/MichaelAuditore/alegra-challenge)]  
 
 
