@@ -306,7 +306,7 @@ los service-name disponibles para la app publicada en la URL anteriormente menci
 - kitchen-service
 - inventory-service
 
-Nota: /`service-name`/swagger -> muestra la documentación de la API.
+Nota: /`service-name`/v1/documentation -> muestra la documentación de la API.
 
 ---
 
