@@ -1,6 +1,6 @@
 {
     "family": "kitchen-task",
-    "executionRoleArn": "arn:aws:iam::753829278316:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::140023362106:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "kitchen-app",
@@ -27,15 +27,13 @@
                     "containerPort": 3001,
                     "hostPort": 3001
                 }
-            ],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "kitchen-app",
-                    "awslogs-region": "TO_BE_REPLACED",
-                    "awslogs-stream-prefix": "ecs"
-                }
-            }
+            ]
+        }
+    ],
+    "placementConstraints": [
+        {
+            "type": "memberOf",
+            "expression": "attribute:ecs.instance-id == i-074a53a5dc37e934a"
         }
     ]
 }

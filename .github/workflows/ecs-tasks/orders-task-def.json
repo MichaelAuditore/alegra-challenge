@@ -1,6 +1,6 @@
 {
     "family": "orders-task",
-    "executionRoleArn": "arn:aws:iam::753829278316:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::140023362106:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "orders-app",
@@ -23,15 +23,13 @@
                     "containerPort": 3000,
                     "hostPort": 3000
                 }
-            ],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "orders-app",
-                    "awslogs-region": "TO_BE_REPLACED",
-                    "awslogs-stream-prefix": "ecs"
-                }
-            }
+            ]
+        }
+    ],
+    "placementConstraints": [
+        {
+            "type": "memberOf",
+            "expression": "attribute:ecs.instance-id == i-074a53a5dc37e934a"
         }
     ]
 }
