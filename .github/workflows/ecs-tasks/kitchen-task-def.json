@@ -1,6 +1,6 @@
 {
     "family": "kitchen-task",
-    "executionRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::140023362106:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "kitchen-app",

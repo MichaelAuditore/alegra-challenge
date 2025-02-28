@@ -85,9 +85,6 @@ jobs:
 
       - name: Replace AWS Logs Region in Task Definitions
         run: |
-          sed -i 's|"executionRoleArn": "arn:aws:iam::[0-9]\+:role/ecsTaskExecutionRole"|"executionRoleArn": "arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole"|' .github/workflows/ecs-tasks/orders-task-def.json
-          sed -i 's|"executionRoleArn": "arn:aws:iam::[0-9]\+:role/ecsTaskExecutionRole"|"executionRoleArn": "arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole"|' .github/workflows/ecs-tasks/inventory-task-def.json
-          sed -i 's|"executionRoleArn": "arn:aws:iam::[0-9]\+:role/ecsTaskExecutionRole"|"executionRoleArn": "arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole"|' .github/workflows/ecs-tasks/kitchen-task-def.json
           sed -i 's|"awslogs-region": "TO_BE_REPLACED"|"awslogs-region": "'${{ env.AWS_REGION }}'"|' .github/workflows/ecs-tasks/orders-task-def.json
           sed -i 's|"awslogs-region": "TO_BE_REPLACED"|"awslogs-region": "'${{ env.AWS_REGION }}'"|' .github/workflows/ecs-tasks/inventory-task-def.json
           sed -i 's|"awslogs-region": "TO_BE_REPLACED"|"awslogs-region": "'${{ env.AWS_REGION }}'"|' .github/workflows/ecs-tasks/kitchen-task-def.json
