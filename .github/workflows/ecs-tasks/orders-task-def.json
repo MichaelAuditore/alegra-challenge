@@ -15,7 +15,7 @@
                     "valueFrom": "/alegra/PGSQL_DATABASE_URL"
                 }
             ],
-            "memory": 512,
+            "memory": 128,
             "cpu": 256,
             "essential": true,
             "portMappings": [

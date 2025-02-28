@@ -19,7 +19,7 @@
                     "valueFrom": "/alegra/WS_INVENTORY"
                 }
             ],
-            "memory": 512,
+            "memory": 128,
             "cpu": 256,
             "essential": true,
             "portMappings": [
