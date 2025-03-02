@@ -119,7 +119,7 @@ jobs:
           cluster: ${{ env.CLUSTER_NAME }}
           service: orders-service
           task-definition: ${{ steps.render_orders.outputs.task-definition }}
-          wait-for-service-stability: true
+          wait-for-service-stability: false
 
       - name: Deploy kitchen-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -127,7 +127,7 @@ jobs:
           cluster: ${{ env.CLUSTER_NAME }}
           service: kitchen-service
           task-definition: ${{ steps.render_kitchen.outputs.task-definition }}
-          wait-for-service-stability: true
+          wait-for-service-stability: false
 
       - name: Deploy inventory-app to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -135,4 +135,4 @@ jobs:
           cluster: ${{ env.CLUSTER_NAME }}
           service: inventory-service
           task-definition: ${{ steps.render_inventory.outputs.task-definition }}
-          wait-for-service-stability: true
+          wait-for-service-stability: false
