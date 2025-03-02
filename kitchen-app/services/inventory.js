@@ -3,7 +3,7 @@ import websocket from "ws";
 export async function requestIngredients(fastify, protocol, { ingredients }) {
 
     return new Promise((resolve, reject) => {
-        const URL_INVENTORY = `${protocol}://${fastify.config.WS_INVENTORY}/v1/kitchen/recipe-ingredients`;
+        const URL_INVENTORY = `${protocol}://${fastify.config.WS_INVENTORY}/kitchen/recipe-ingredients`;
 
         fastify.log.info(`URL INVENTORY: ${URL_INVENTORY}`);
 

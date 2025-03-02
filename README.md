@@ -295,19 +295,16 @@ A continuación, se describe la estructura de la base de datos basada en los scr
 ---
 
 ## **📊 Estado del Despliegue**
-🔗 **URL de la API:** [🔗 [Enlace aquí](https://alegra.mp-test-challenges.com)]
+🔗 **URL de la API Orders:** [🔗 [Enlace aquí](https://alegra-orders.quality-air.net/)]
+🔗 **URL de la API Inventory:** [🔗 [Enlace aquí](https://alegra-inventory.quality-air.net/)]
+🔗 **URL de la API Kitchen:** [🔗 [Enlace aquí](https://alegra-kitchen.quality-air.net/)]
 🔗 **URL del sitio web:** [🔗 [Enlace aquí](https://alegra-frontend-beryl.vercel.app/restaurant)]
 🔗 **Repositorio en GitHub:** [🔗 [Enlace aquí](https://github.com/MichaelAuditore/alegra-challenge)]  
 
 
 ## **Funcionamiento aplicación**
-los service-name disponibles para la app publicada en la URL anteriormente mencionada son:
-
-- orders-service
-- kitchen-service
-- inventory-service
-
-Nota: /`service-name`/v1/documentation -> muestra la documentación de la API.
+Se puede acceder a la documentación swagger para saber que recursos están disponibles para cada api
+Nota: /documentation -> muestra la documentación de la API.
 
 ---
 
