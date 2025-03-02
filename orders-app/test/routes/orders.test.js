@@ -7,7 +7,7 @@ test("POST /orders - Creates an order successfully", async (t) => {
 
     const response = await app.inject({
         method: "POST",
-        url: "orders-service/v1/orders",
+        url: "api/v1/orders",
         payload: { customer: "John Doe" }
     });
 
@@ -25,7 +25,7 @@ test("POST /orders - Uses default customer when is empty", async (t) => {
 
     const response = await app.inject({
         method: "POST",
-        url: "/orders-service/v1/orders",
+        url: "/api/v1/orders",
         payload: { customer: "" }
     });
 
@@ -41,7 +41,7 @@ test("POST /orders - Returns 400 when customer is missing", async (t) => {
 
     const response = await app.inject({
         method: "POST",
-        url: "/orders-service/v1/orders",
+        url: "/api/v1/orders",
         payload: {}
     });
 
@@ -59,7 +59,7 @@ test("POST /orders - Returns 500 if Redis fails", async (t) => {
 
     const response = await app.inject({
         method: "POST",
-        url: "orders-service/v1/orders",
+        url: "api/v1/orders",
         payload: { customer: "John Doe" }
     });
 
@@ -72,7 +72,7 @@ test("GET / - Obtener lista de órdenes", async (t) => {
 
     const response = await app.inject({
         method: "GET",
-        url: "orders-service/v1/orders",
+        url: "api/v1/orders",
         query: { limit: "5", offset: "1" }
     });
 
@@ -89,7 +89,7 @@ test("GET /:status - Obtener órdenes por estado", async (t) => {
 
     const response = await app.inject({
         method: "GET",
-        url: "/orders-service/v1/orders/pending",
+        url: "/api/v1/orders/pending",
         query: { limit: "5", offset: "0" }
     });
 
@@ -106,7 +106,7 @@ test("GET /:status - Estado no válido", async (t) => {
 
     const response = await app.inject({
         method: "GET",
-        url: "/orders-service/v1/orders/coking",
+        url: "/api/v1/orders/coking",
         query: { limit: "5", offset: "0" }
     });
 

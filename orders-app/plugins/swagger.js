@@ -14,7 +14,7 @@ export default fp(async function (fastify, opts) {
     });
 
     fastify.register(fastifySwaggerUI, {
-        routePrefix: "/orders-service/v1/documentation",
+        routePrefix: "/api/v1/documentation",
         exposeRoute: true
     });
 

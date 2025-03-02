@@ -26,7 +26,7 @@ export async function createApp() {
   app.register(fastifyAutoload, {
     dir: path.resolve(__dirname, "../routes"),
     options: Object.assign({
-      prefix: "orders-service/v1"
+      prefix: "api/v1"
     }),
   });
 

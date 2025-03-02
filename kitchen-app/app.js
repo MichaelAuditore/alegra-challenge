@@ -32,7 +32,7 @@ export default async function (fastify, opts) {
   fastify.register(AutoLoad, {
     dir: path.join(__dirname, "routes"),
     options: Object.assign({
-      prefix: "kitchen-service/v1"
+      prefix: "api/v1"
     }, opts),
   })
 }
